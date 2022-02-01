@@ -18,7 +18,7 @@ def load_data(file_path: str) -> dict:
     return data
 
 
-def find_all_paths(graph: dict, start_node: str, current_path: list = None, double_visit: bool = False):
+def count_all_paths(graph: dict, start_node: str, current_path: list = None, double_visit: bool = False) -> int:
     """
     Find all possible and valid paths through the graph {data}.
     """
@@ -41,33 +41,37 @@ def find_all_paths(graph: dict, start_node: str, current_path: list = None, doub
 
     current_path = current_path + [start_node]
 
-    # If we have reached the end node (for a singular path), return the path.
+    # If we have reached the end node (for a singular path), only then return 1.
     if start_node == END_NODE:
-        return [current_path]
+        return 1
 
-    all_paths = []
+    count = 0
     for node in graph[start_node]:
-        # Avoid small caves that have already been traversed (or a single small cave at most twice).
-        if is_valid(node):
-            paths = find_all_paths(graph, node, current_path, double_visit=double_visit)
-            for path in paths:
-                all_paths.append(path)
+        # If node is a big cave (and can be visited multiple times, add it and continue).
+        if node.isupper():
+            count += count_all_paths(graph, node, current_path, double_visit)
+        # If node is a small cave, but has not been visited yet, try and add it twice.
+        elif node not in current_path:
+            count += count_all_paths(graph, node, current_path + [node], double_visit)
+        # If double visit is allowed (but not for start node), continue the search with double visit off.
+        elif double_visit and node != START_NODE:
+            count += count_all_paths(graph, node, current_path, double_visit=False)
 
-    return all_paths
+    return count
 
 
 def one(data: dict) -> int:
     """
     How many paths through this cave system are there that visit small caves at most once?
     """
-    return len(find_all_paths(data, START_NODE))
+    return count_all_paths(data, START_NODE)
 
 
 def two(data: dict) -> int:
     """
     Given you can visit a small cave twice, how many paths through this cave system are there?
     """
-    return len(find_all_paths(data, START_NODE, double_visit=True))
+    return count_all_paths(data, START_NODE, double_visit=True)
 
 
 dict_data = load_data("data.txt")
