@@ -23,19 +23,6 @@ def count_all_paths(graph: dict, start_node: str, current_path: list = None, dou
     Find all possible and valid paths through the graph {data}.
     """
 
-    def is_valid(name: str) -> bool:
-        """
-        Returns whether a node can be visited (i.e. avoids a small cave if it has been already visited once for one() or
-        twice for two().
-        """
-        if double_visit and node != START_NODE:
-            seen = set()
-            duplicate_cave_list = [x for x in current_path if (x in seen or seen.add(x)) and x.islower()]
-            # If there is a maximum of one duplicate small cave in the current path, return True.
-            return len(duplicate_cave_list) <= 1
-        else:
-            return not (name.islower() and name in current_path)
-
     if not current_path:
         current_path = []
 
